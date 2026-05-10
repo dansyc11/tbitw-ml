@@ -123,3 +123,63 @@ void nn_print(NN nn, const char *name) {
     }
     printf("]\n");
 }
+
+Adam adam_alloc(Arena *a, NN nn) {
+    Adam adam = {0};
+    adam.t = 0;
+    
+    adam.m_w = arena_alloc(a, sizeof(Mat) * nn.count);
+    adam.v_w = arena_alloc(a, sizeof(Mat) * nn.count);
+    adam.m_b = arena_alloc(a, sizeof(Mat) * nn.count);
+    adam.v_b = arena_alloc(a, sizeof(Mat) * nn.count);
+    
+    for (u32 i = 0; i < nn.count; ++i) {
+        adam.m_w[i] = mat_alloc(a, nn.ws[i].rows, nn.ws[i].cols);
+        adam.v_w[i] = mat_alloc(a, nn.ws[i].rows, nn.ws[i].cols);
+        adam.m_b[i] = mat_alloc(a, nn.bs[i].rows, nn.bs[i].cols);
+        adam.v_b[i] = mat_alloc(a, nn.bs[i].rows, nn.bs[i].cols);
+        
+        mat_fill(adam.m_w[i], 0.0f);
+        mat_fill(adam.v_w[i], 0.0f);
+        mat_fill(adam.m_b[i], 0.0f);
+        mat_fill(adam.v_b[i], 0.0f);
+    }
+    
+    return adam;
+}
+
+void adam_update(NN nn, NN grad, Adam *adam, f32 lr) {
+    f32 beta1 = 0.9f;
+    f32 beta2 = 0.999f;
+    f32 epsilon = 1e-8f;
+    
+    adam->t++;
+    
+    f32 lr_t = lr * sqrtf(1.0f - powf(beta2, adam->t)) / (1.0f - powf(beta1, adam->t));
+    
+    for (u32 i = 0; i < nn.count; ++i) {
+        // Update weights
+        for (u32 j = 0; j < nn.ws[i].rows * nn.ws[i].cols; ++j) {
+            f32 g = grad.ws[i].data[j];
+            
+            // Update biased first moment estimate
+            adam->m_w[i].data[j] = beta1 * adam->m_w[i].data[j] + (1.0f - beta1) * g;
+            
+            // Update biased second moment estimate
+            adam->v_w[i].data[j] = beta2 * adam->v_w[i].data[j] + (1.0f - beta2) * g * g;
+            
+            // Update weights
+            nn.ws[i].data[j] -= lr_t * adam->m_w[i].data[j] / (sqrtf(adam->v_w[i].data[j]) + epsilon);
+        }
+        
+        // Update biases
+        for (u32 j = 0; j < nn.bs[i].cols; ++j) {
+            f32 g = grad.bs[i].data[j];
+            
+            adam->m_b[i].data[j] = beta1 * adam->m_b[i].data[j] + (1.0f - beta1) * g;
+            adam->v_b[i].data[j] = beta2 * adam->v_b[i].data[j] + (1.0f - beta2) * g * g;
+            
+            nn.bs[i].data[j] -= lr_t * adam->m_b[i].data[j] / (sqrtf(adam->v_b[i].data[j]) + epsilon);
+        }
+    }
+}
