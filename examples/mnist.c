@@ -80,6 +80,19 @@ int main(void) {
                epoch + 1, accuracy, correct, test.count);
     }
     
+    printf("\nSave trained model? (y/n): ");
+    char response;
+    scanf(" %c", &response);
+    
+    if (response == 'y' || response == 'Y') {
+        nn_save(nn, "mnist_vanilla.tbitw");  // Different filename
+        printf("✓ Saved! Use './mnist_inference' to load it later\n");
+    } else {
+        printf("Model not saved\n");
+    }
+    
+    arena_free(&arena);
+    return 0;
     arena_free(&arena);
     return 0;
 }
