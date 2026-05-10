@@ -4,7 +4,7 @@ LIBS = -lm
 
 SRC = src/tbitw_arena.c src/tbitw_math.c src/tbitw_nn.c
 
-all: xor mnist
+all: xor mnist mnist_adam
 
 xor: $(SRC) examples/xor.c
 	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
@@ -12,7 +12,10 @@ xor: $(SRC) examples/xor.c
 mnist: $(SRC) src/tbitw_mnist.c examples/mnist.c
 	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
+mnist_adam: $(SRC) src/tbitw_mnist.c examples/mnist_adam.c
+	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
+
 clean:
-	rm -f xor mnist
+	rm -f xor mnist mnist_adam
 
 .PHONY: all clean
