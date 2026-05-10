@@ -3,7 +3,7 @@
 #include "../include/tbitw_mnist.h"
 
 int main(void) {
-    Arena arena = arena_create(1024 * 1024);
+    Arena arena = arena_create(512* 1024 * 1024);
     
     u32 arch[] = {784, 128, 10};
     NN nn = nn_load(&arena, "mnist_model.tbitw", arch, ARRAY_LEN(arch));

@@ -33,7 +33,7 @@ int main(void) {
     printf("Architecture: 784 -> 128 -> 10\n\n");
     
     f32 rate = 0.001f;
-    u32 epochs = 10;
+    u32 epochs = 20;
     u32 batch_size = 100;
     
     for (u32 epoch = 0; epoch < epochs; ++epoch) {
@@ -80,9 +80,7 @@ int main(void) {
         f32 accuracy = 100.0f * correct / test.count;
         printf("Epoch %u: Accuracy = %.2f%% (%u/%u)\n", 
                epoch + 1, accuracy, correct, test.count);
-    }
-     
-    arena_free(&test_arena);
+    } 
 
     printf("\nSave trained model? (y/n): ");
     char response;
