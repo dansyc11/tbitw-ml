@@ -1,0 +1,12 @@
+# Compiled executables
+xor
+mnist
+mnist_adam
+mnist_inference
+mnist_predict
+
+# Saved models
+*.tbitw
+
+# Object files
+*.o
