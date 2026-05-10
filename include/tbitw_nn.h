@@ -33,4 +33,8 @@ void adam_update(NN nn, NN grad, Adam *adam, f32 lr);
 #define NN_INPUT(nn)  (nn).as[0]
 #define NN_OUTPUT(nn) (nn).as[(nn).count]
 
+// Model serialization
+void nn_save(NN nn, const char *path);
+NN nn_load(Arena *a, const char *path, u32 *arch, u32 arch_count);
+
 #endif // TBITW_NN_H

@@ -183,3 +183,65 @@ void adam_update(NN nn, NN grad, Adam *adam, f32 lr) {
         }
     }
 }
+
+void nn_save(NN nn, const char *path) {
+    FILE *f = fopen(path, "wb");
+    if (!f) {
+        fprintf(stderr, "Failed to open %s for writing\n", path);
+        exit(1);
+    }
+    
+    u32 magic = 0x54424954;  // "TBIT"
+    fwrite(&magic, sizeof(u32), 1, f);
+    fwrite(&nn.count, sizeof(u32), 1, f);
+    
+    for (u32 i = 0; i < nn.count; ++i) {
+        fwrite(&nn.ws[i].rows, sizeof(u32), 1, f);
+        fwrite(&nn.ws[i].cols, sizeof(u32), 1, f);
+        
+        u32 w_size = nn.ws[i].rows * nn.ws[i].cols;
+        fwrite(nn.ws[i].data, sizeof(f32), w_size, f);
+        
+        u32 b_size = nn.bs[i].cols;
+        fwrite(nn.bs[i].data, sizeof(f32), b_size, f);
+    }
+    
+    fclose(f);
+    printf("Model saved to %s\n", path);
+}
+
+NN nn_load(Arena *a, const char *path, u32 *arch, u32 arch_count) {
+    FILE *f = fopen(path, "rb");
+    if (!f) {
+        fprintf(stderr, "Failed to open %s for reading\n", path);
+        exit(1);
+    }
+    
+    u32 magic;
+    fread(&magic, sizeof(u32), 1, f);
+    if (magic != 0x54424954) {
+        fprintf(stderr, "Invalid model file\n");
+        exit(1);
+    }
+    
+    u32 layer_count;
+    fread(&layer_count, sizeof(u32), 1, f);
+    
+    NN nn = nn_alloc(a, arch, arch_count);
+    
+    for (u32 i = 0; i < nn.count; ++i) {
+        u32 rows, cols;
+        fread(&rows, sizeof(u32), 1, f);
+        fread(&cols, sizeof(u32), 1, f);
+        
+        u32 w_size = rows * cols;
+        fread(nn.ws[i].data, sizeof(f32), w_size, f);
+        
+        u32 b_size = nn.bs[i].cols;
+        fread(nn.bs[i].data, sizeof(f32), b_size, f);
+    }
+    
+    fclose(f);
+    printf("Model loaded from %s\n", path);
+    return nn;
+}
