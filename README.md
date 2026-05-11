@@ -27,7 +27,7 @@ make
 ```
 
 <p align="center">
-  <img src="docs/prediction_example.png" alt="MNIST Prediction Example" style="width:70%;/>
+  <img src="docs/prediction_example.png" alt="MNIST Prediction Example" style="max-height:500px;"/>
 </p>
 
 ### Fashion-MNIST Clothing Classification
@@ -40,19 +40,10 @@ make
 ```
 
 <p align="center">
-  <img src="docs/fashion_prediction.png" alt="Fashion-MNIST Example" style="width:70%;"/>
+  <img src="docs/fashion_prediction.png" alt="Fashion-MNIST Example" style="max-height:500px;"/>
 </p>
 
 Recognizes 10 categories: T-shirt, Trouser, Pullover, Dress, Coat, Sandal, Shirt, Sneaker, Bag, and Ankle boot.
-
-
-
-```bash
-# Classify clothing items
-./fashion_predict
-# Enter model: fashion_adam_9216.tbitw
-# Enter index: 100
-```
 
 ## Not-So-Quick Guide (Training Your Own)
 
@@ -91,12 +82,11 @@ Want to train from scratch instead of using pre-trained models?
 ```
 
 Then use your model with `./mnist_predict` or `./fashion_predict`!
-
+All the epoch are examples of the results I get, each time you train you'll get a different percentage!
 
 ## Technical Details
 
 See [Technical Documentation (PDF)](docs/technical_reference.pdf) for architecture details and how the algorithms were implemented.
-
 
 ---
 
