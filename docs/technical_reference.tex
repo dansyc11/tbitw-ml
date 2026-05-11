@@ -1,0 +1,238 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{booktabs}
+
+\lstset{
+    language=C,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    frame=single,
+    breaklines=true,
+    captionpos=b
+}
+
+\title{\textbf{TBITW ML Library}\\Implementation Details}
+\author{dansyc11}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\noindent
+\textbf{Last Updated:} May 11, 2026
+
+\vspace{0.5cm}
+
+\section{Introduction}
+
+I built this library understand ML from first principle with just C
+
+\subsection{Core Components}
+\begin{itemize}
+    \item Arena allocator for fast memory management
+    \item Matrix operations for linear algebra
+    \item Neural network with backpropagation
+    \item Adam optimizer for training
+\end{itemize}
+
+\section{Memory Management}
+
+\subsection{Arena Allocator}
+
+Pre-allocate large block, bump pointer for O(1) allocation:
+
+\begin{lstlisting}[caption={Arena Structure}]
+typedef struct {
+    u8 *memory;
+    usize size;
+    usize used;
+} Arena;
+\end{lstlisting}
+
+Eliminates malloc/free overhead during training.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcc}
+\toprule
+Operation & malloc/free & Arena \\
+\midrule
+Single Allocation & O(log n) & O(1) \\
+Batch Deallocation & O(n) & O(1) \\
+\bottomrule
+\end{tabular}
+\caption{Allocator Performance}
+\end{table}
+
+\section{Neural Network}
+
+\subsection{Architecture}
+
+\begin{lstlisting}[caption={Network Structure}]
+typedef struct {
+    Mat *ws;     // Weights [L]
+    Mat *bs;     // Biases [L]
+    Mat *as;     // Activations [L+1]
+    u32 count;
+} NN;
+\end{lstlisting}
+
+\subsection{Forward Pass}
+
+For layer $l$:
+\begin{align}
+    z^{(l)} &= a^{(l-1)} W^{(l)} + b^{(l)} \\
+    a^{(l)} &= \sigma(z^{(l)})
+\end{align}
+
+Where sigmoid: $\sigma(x) = \frac{1}{1 + e^{-x}}$
+
+\subsection{Cost Function}
+
+Mean squared error:
+\begin{equation}
+    J = \frac{1}{N} \sum_{i=1}^{N} \sum_{j=1}^{n_L} (a_j^{(L)} - y_j)^2
+\end{equation}
+
+\section{Backpropagation}
+
+Output layer gradient:
+\begin{equation}
+    \delta^{(L)} = 2(a^{(L)} - y) \odot \sigma'(z^{(L)})
+\end{equation}
+
+Hidden layer gradient:
+\begin{equation}
+    \delta^{(l)} = (\delta^{(l+1)} (W^{(l+1)})^T) \odot \sigma'(z^{(l)})
+\end{equation}
+
+Weight updates:
+\begin{equation}
+    \frac{\partial J}{\partial W^{(l)}} = (a^{(l-1)})^T \delta^{(l)}
+\end{equation}
+
+\section{Adam Optimizer}
+
+Maintains momentum $m_t$ and adaptive learning rate $v_t$.
+
+\textbf{Hyperparameters:} $\beta_1 = 0.9$, $\beta_2 = 0.999$, $\epsilon = 10^{-8}$, $\alpha = 0.001$
+
+\textbf{Update rules:}
+\begin{align}
+    m_t &= \beta_1 m_{t-1} + (1-\beta_1) g_t \\
+    v_t &= \beta_2 v_{t-1} + (1-\beta_2) g_t^2 \\
+    \hat{m}_t &= \frac{m_t}{1-\beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1-\beta_2^t} \\
+    \theta_{t+1} &= \theta_t - \alpha \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}
+\end{align}
+
+I implemented Adam to try fixing the XOR convergence problem. It didn't improve XOR performance significantly, but it did increase accuracy on both MNIST digits and Fashion-MNIST by 2-3\% compared to vanilla SGD.
+
+\section{Training}
+
+\subsection{Xavier Initialization}
+
+\begin{equation}
+    W^{(l)} \sim U\left[-\sqrt{\frac{6}{n_{l-1} + n_l}}, \sqrt{\frac{6}{n_{l-1} + n_l}}\right]
+\end{equation}
+
+Prevents gradient vanishing/explosion.
+
+\subsection{Configuration}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lc}
+\toprule
+Parameter & Value \\
+\midrule
+Learning Rate & 0.001 \\
+Batch Size & 100 \\
+Epochs & 20 \\
+Architecture & 784-128-10 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Results}
+
+\subsection{MNIST Performance}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cccc}
+\toprule
+Epoch & Train Loss & Test Accuracy \\
+\midrule
+1 & 0.245 & 45.50\% \\
+5 & 0.089 & 87.67\%  \\
+10 & 0.032 & 90.68\%  \\
+20 & 0.018 & 92.37\%  \\
+\bottomrule
+\end{tabular}
+\caption{MNIST Training Progression}
+\end{table}
+
+\subsection{Fashion-MNIST}
+
+Final accuracy: 92.16\% on 10 clothing categories.
+
+\section{ASCII Visualization}
+
+The prediction tools visualize 28x28 images in the terminal using ASCII characters. Each pixel value (0.0 to 1.0) is mapped to a character based on intensity:
+
+\begin{lstlisting}[caption={ASCII Visualization}]
+void print_digit(Mat image) {
+    const char *chars = " .:oO@";
+    for (u32 i = 0; i < 28; ++i) {
+        for (u32 j = 0; j < 28; ++j) {
+            f32 pixel = image.data[i * 28 + j];
+            int idx = (int)(pixel * 5);
+            printf("%c", chars[idx]);
+        }
+        printf("\n");
+    }
+}
+\end{lstlisting}
+
+Darker pixels (near 0.0) map to spaces, while brighter pixels (near 1.0) map to '@' symbols. This creates a recognizable visualization of handwritten digits and clothing items directly in the terminal.
+
+\section{Model File Format}
+
+Binary format:
+\begin{enumerate}
+    \item Magic: \texttt{0x54424954} ("TBIT")
+    \item Layer count: \texttt{u32}
+    \item For each layer: dimensions + weights + biases
+\end{enumerate}
+
+File size: $\sim$407 KB for 784-128-10 network.
+
+\section{Future Improvements}
+
+\begin{itemize}
+    \item[$\square$] ReLU activation to improve gradient flow
+    \item[$\square$] Convolutional layers to maximize MNIST accuracy (target: 98-99\%)
+    \item[$\square$] Test on additional datasets beyond MNIST/Fashion-MNIST
+\end{itemize}
+
+\section{Appreciation}
+
+\begin{itemize}
+    \item \textbf{Tsoding} - ML in C series on YouTube. Core implementation techniques and educational approach taken from his tutorials on building neural networks from scratch.
+    \item \textbf{Magicalbat} - Additional neural network implementation guidance and best practices.
+\end{itemize}
+
+\textit{Implementation written from scratch with educational guidance from the above resources.}
+
+\end{document}
