@@ -83,16 +83,17 @@ int main(void) {
     printf("\nSave trained model? (y/n): ");
     char response;
     scanf(" %c", &response);
-    
+
     if (response == 'y' || response == 'Y') {
-        nn_save(nn, "mnist_vanilla.tbitw");  // Different filename
-        printf("✓ Saved! Use './mnist_inference' to load it later\n");
+	char filename[256];
+	printf("Enter filename (e.g., my_model.tbitw): ");
+	scanf("%255s", filename);
+	nn_save(nn, filename);
+	printf("✓ Saved as %s\n", filename);
     } else {
-        printf("Model not saved\n");
-    }
+	printf("Model not saved\n");
+    } 
     
-    arena_free(&arena);
-    return 0;
     arena_free(&arena);
     return 0;
 }

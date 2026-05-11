@@ -3,10 +3,14 @@
 #include "../include/tbitw_mnist.h"
 
 int main(void) {
-    Arena arena = arena_create(512* 1024 * 1024);
+    Arena arena = arena_create(512 * 1024 * 1024);
+    
+    char filename[256];
+    printf("Enter model filename to load: ");
+    scanf("%255s", filename);
     
     u32 arch[] = {784, 128, 10};
-    NN nn = nn_load(&arena, "mnist_model.tbitw", arch, ARRAY_LEN(arch));
+    NN nn = nn_load(&arena, filename, arch, ARRAY_LEN(arch));
     
     MNIST_Dataset test = mnist_load(&arena, "data/t10k-images-idx3-ubyte", 
                                              "data/t10k-labels-idx1-ubyte");
