@@ -27,7 +27,7 @@ make
 ```
 
 <p align="center">
-  <img src="docs/prediction_example.png" alt="MNIST Prediction Example" width="700"/>
+  <img src="docs/prediction_example.png" alt="MNIST Prediction Example" style="width:70%;/>
 </p>
 
 ### Fashion-MNIST Clothing Classification
@@ -40,7 +40,7 @@ make
 ```
 
 <p align="center">
-  <img src="docs/fashion_prediction.png" alt="Fashion-MNIST Example" width="700"/>
+  <img src="docs/fashion_prediction.png" alt="Fashion-MNIST Example" style="width:70%;"/>
 </p>
 
 Recognizes 10 categories: T-shirt, Trouser, Pullover, Dress, Coat, Sandal, Shirt, Sneaker, Bag, and Ankle boot.
