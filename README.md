@@ -2,6 +2,7 @@
 
 *A lightweight machine learning library built from scratch in C using only the standard library*[^1][^2]
 
+## Live Demo
 <p align="center">
   <img src="docs/mnist_demo.gif" alt="MNIST Demo" width="600"/>
 </p>
@@ -17,6 +18,8 @@ I have provided 2 pre-trained models so you can instantly demo it without waitin
 
 ## Quick Start
 
+### MNIST Digit Classification
+
 ```bash
 git clone https://github.com/dansyc11/tbitw-ml
 cd tbitw-ml
@@ -24,25 +27,30 @@ make
 
 # Try the pre-trained MNIST model
 ./mnist_predict
-# Enter model: # mnist_adam_9257.tbitw or fashion_adam_9216.tbitw
-# Enter index: # any from 0 to 9999
+# Enter model filename to load: mnist_adam_9257.tbitw
+# Enter image index (0-9999) or -1 to quit: 42
 ```
 
-## Live Demo
-
-### Digit MNIST Classification
-
 <p align="center">
-  <img src="docs/digit_example.png" alt="MNIST Prediction Example" width="700"/>
+  <img src="docs/prediction_example.png" alt="MNIST Prediction Example" width="700"/>
 </p>
 
-The classifier visualizes digits in ASCII and shows confidence scores in real-time.
+### Fashion-MNIST Clothing Classification
 
-### Fashion MNIST Classification
+```bash
+# Classify clothing items
+./fashion_predict
+# Enter model filename to load: fashion_adam_9216.tbitw
+# Enter image index (0-9999) or -1 to quit: 100
+```
 
 <p align="center">
   <img src="docs/fashion_prediction.png" alt="Fashion-MNIST Example" width="700"/>
 </p>
+
+Recognizes 10 categories: T-shirt, Trouser, Pullover, Dress, Coat, Sandal, Shirt, Sneaker, Bag, and Ankle boot.
+
+
 
 ```bash
 # Classify clothing items
@@ -50,6 +58,44 @@ The classifier visualizes digits in ASCII and shows confidence scores in real-ti
 # Enter model: fashion_adam_9216.tbitw
 # Enter index: 100
 ```
+
+## Not-So-Quick Guide (Training Your Own)
+
+Want to train from scratch instead of using pre-trained models?
+
+### Train MNIST Model
+
+```bash
+# Train with Adam optimizer (20 epochs, ~3 minutes)
+./mnist_adam
+
+# Training output:
+# Epoch 1: Accuracy = 45.50%
+# Epoch 5: Accuracy = 87.67%
+# Epoch 10: Accuracy = 90.68%
+# Epoch 20: Accuracy = 92.37%
+#
+# Save trained model? (y/n): y
+# Enter filename: my_mnist_model.tbitw
+```
+
+### Train Fashion-MNIST Model
+
+```bash
+# Train clothing classifier (20 epochs, ~3 minutes)
+./fashion
+
+# Training output:
+# Epoch 1: Accuracy = 65.43%
+# Epoch 5: Accuracy = 85.21%
+# Epoch 10: Accuracy = 89.54%
+# Epoch 20: Accuracy = 92.16%
+#
+# Save trained model? (y/n): y
+# Enter filename: my_fashion_model.tbitw
+```
+
+Then use your model with `./mnist_predict` or `./fashion_predict`!
 
 
 ## Technical Details
