@@ -2,11 +2,6 @@
 
 *A lightweight machine learning library built from scratch in C using only the standard library*[^1][^2]
 
-## Live Demo
-<p align="center">
-  <img src="docs/mnist_demo.gif" alt="MNIST Demo" width="600"/>
-</p>
-
 ## Results
 
 | Dataset | Accuracy | 
